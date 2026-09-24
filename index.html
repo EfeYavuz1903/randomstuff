@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Zaza!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #0d0d0d;
+            color: #f0f0f0;
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        .page {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #080808 100%);
+        }
+        .page.active {
+            display: flex;
+            opacity: 1;
+        }
+        h1, h2 {
+            font-family: 'Playfair Display', serif;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        .btn-group {
+            display: flex;
+            gap: 30px;
+            margin-top: 40px;
+            position: relative;
+            min-height: 80px;
+            align-items: center;
+            justify-content: center;
+        }
+        .choice-btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid #fff;
+            background: transparent;
+            color: #fff;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.1);
+            position: relative;
+            z-index: 10;
+        }
+        .choice-btn:hover {
+            background: #fff;
+            color: #000;
+            transform: scale(1.05);
+        }
+        .warning-text {
+            color: #ff4d4d;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            font-weight: 600;
+            text-align: center;
+            min-height: 30px;
+        }
+
+        /* Newspaper page styles */
+        .newspaper {
+            background: #f4f1ea;
+            color: #2b2b2b;
+            width: 90%;
+            max-width: 800px;
+            padding: 40px;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            font-family: 'Special Elite', cursive;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .news-header {
+            text-align: center;
+            border-bottom: 3px double #2b2b2b;
+            border-top: 1px solid #2b2b2b;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        .news-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .news-subtitle {
+            font-size: 1rem;
+            font-style: italic;
+            margin-top: 5px;
+        }
+        .news-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .news-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        /* Map page styles */
+        .map-container {
+            text-align: center;
+            max-width: 800px;
+        }
+        .map-container img {
+            width: 100%;
+            max-width: 600px;
+            border-radius: 12px;
+            border: 3px solid #333;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,255,100,0.1);
+        }
+        .poetry-box {
+            font-size: 1.25rem;
+            line-height: 1.8;
+            max-width: 700px;
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            color: #e0e0e0;
+            margin-bottom: 30px;
+        }
+
+        /* 5 things animated sequence */
+        .five-things-list {
+            list-style: none;
+            font-size: 1.5rem;
+            text-align: left;
+            margin-top: 30px;
+        }
+        .five-things-list li {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+            margin: 15px 0;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 550;
+            background: rgba(255,255,255,0.05);
+            padding: 12px 25px;
+            border-radius: 8px;
+            border-left: 4px solid #ff4d4d;
+        }
+        .five-things-list li.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Jumpscare / Angry face overlay */
+        #jumpscare-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #8b0000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+            animation: shake 0.2s infinite;
+        }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            60% { transform: translate(-1px, 2px) rotate(0deg); }
+            80% { transform: translate(-3px, 1px) rotate(-1deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .angry-face {
+            font-size: 10rem;
+            color: #fff;
+        }
+        .angry-text {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-top: 20px;
+            text-align: center;
+            font-family: 'Special Elite', cursive;
+        }
+
+        /* Airplane animation */
+        #airplane {
+            position: fixed;
+            font-size: 3rem;
+            z-index: 999;
+            display: none;
+            pointer-events: none;
+            transition: transform 1.5s linear;
+        }
+
+        /* Confetti canvas */
+        canvas#confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Letter container */
+        .letter-container {
+            background: #fdfbf7;
+            color: #2c2c2c;
+            padding: 45px;
+            border-radius: 8px;
+            max-width: 750px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            font-family: 'Special Elite', cursive;
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+        .letter-container h2 {
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+        
+        .next-btn {
+            margin-top: 30px;
+            padding: 12px 35px;
+            background: #fff;
+            color: #000;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .next-btn:hover {
+            background: #d4d4d4;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti-canvas"></canvas>
+    <div id="airplane">✈️</div>
+
+    <!-- Jumpscare Modal -->
+    <div id="jumpscare-overlay">
+        <div class="angry-face">😡🤬</div>
+        <div class="angry-text">FROGS ARE MORE VALUABLE THAN HOES!</div>
+    </div>
+
+    <!-- PAGE 1: Dinosaur Question -->
+    <div class="page active" id="page-1">
+        <h1 style="font-size: 2.5rem; margin-bottom: 10px;">IS IT REALLY A LIVING DINOSAUR'S BIRTHDAY TODAY?</h1>
+        <div class="btn-group" id="dino-buttons">
+            <button class="choice-btn" id="dino-yes" onclick="handleDinoClick('yes')">YES</button>
+            <button class="choice-btn" id="dino-no" onclick="handleDinoClick('no')">NO</button>
+        </div>
+        <div class="warning-text" id="dino-warning"></div>
+    </div>
+
+    <!-- PAGE 2: Newspaper 28 December -->
+    <div class="page" id="page-2">
+        <div class="newspaper">
+            <div class="news-header">
+                <div class="news-title">THE DAILY CHRONICLE</div>
+                <div class="news-subtitle">December 28 Night — Why This Date Mattered</div>
+            </div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 20px; font-size: 1.2rem;">
+                ANY GIRL BEFORE MEETING THE FUNNIEST GUY!
+            </div>
+            <div class="news-content">
+                <div>
+                    <p>It was late on the night of December 28 when everything shifted. Before that moment, September 25 was just an ordinary, unremarkable day on the calendar. But Zaza changed the entire gravitational pull of time.</p>
+                    <p>On that night, I started learning how to truly value myself, building an unshakable trust in someone who possesses a heart of rare gold. His relentless dedication, hard work ethics, and quiet brilliance began transforming my world.</p>
+                </div>
+                <div>
+                    <p>Even when tired, never giving up, making historical jokes and carrying the weight of infinite ambitions — Zaza proved that true resilience exists.</p>
+                    <p>From a normal autumn day into an unforgettable milestone. Some people are simply born to redefine what special means.</p>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 25px;">
+                <button class="next-btn" onclick="nextPage()">CONTINUE JOURNEY →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 3: Same Sky / Map -->
+    <div class="page" id="page-3">
+        <div class="map-container">
+            <h2 style="margin-bottom: 15px; font-size: 2.2rem;">LOOKING AT THE SAME SKY</h2>
+            <div class="poetry-box">
+                "No matter how far distances stretch or how loud the world gets, we are always under the exact same sky. Just like the historic coordinates of September 25, 2001, etched onto this globe, some moments and souls remain eternally aligned."
+            </div>
+            <br>
+            <button class="next-btn" onclick="nextPage()">NEXT →</button>
+        </div>
+    </div>
+
+    <!-- PAGE 4: 5 Things That Remind Me Of You -->
+    <div class="page" id="page-4">
+        <h2 style="font-size: 2.5rem; margin-bottom: 20px;">5 THINGS THAT REMIND ME OF YOU</h2>
+        <ul class="five-things-list" id="things-list">
+            <li id="item-0">1. A certain iconic animated TV dog with unmatched charisma</li>
+            <li id="item-1">2. Vibrant red paint</li>
+            <li id="item-2">3. Huzz</li>
+            <li id="item-3">4. Massive ships sailing across grand oceans</li>
+            <li id="item-4">5. Towering skyscrapers touching the clouds</li>
+        </ul>
+        <button class="next-btn" id="things-next" style="display:none; margin-top: 30px;" onclick="nextPage()">CONTINUE →</button>
+    </div>
+
+    <!-- PAGE 5: 9/11 Rating Question -->
+    <div class="page" id="page-5">
+        <h2 style="font-size: 2.5rem; margin-bottom: 15px;">WHAT IS YOUR RATING FOR THIS CELEBRATION?</h2>
+        <div class="btn-group" id="score-buttons">
+            <button class="choice-btn" onclick="handleScoreClick('9/11')">9/11</button>
+            <button class="choice-btn" onclick="handleScoreClick('11/9')">11/9</button>
+        </div>
+        <div class="warning-text" id="score-warning"></div>
+    </div>
+
+    <!-- PAGE 6: Hoes / Homeless Question -->
+    <div class="page" id="page-6">
+        <h2 style="font-size: 2.3rem; margin-bottom: 10px;">DOES BEING HOMELESS IN THIS BIRTHDAY RUIN YOU?</h2>
+        <div class="btn-group" id="hoes-buttons" style="gap: 20px;">
+            <button class="choice-btn" onclick="handleHoesClick('yes')">Yes</button>
+            <button class="choice-btn" onclick="handleHoesClick('no')">No</button>
+            <button class="choice-btn" onclick="handleHoesClick('hoes')" id="hoes-btn-element">I have a hoes</button>
+        </div>
+        <div class="warning-text" id="hoes-warning"></div>
+    </div>
+
+    <!-- PAGE 6-SUB: Yes Response for Hoes question -->
+    <div class="page" id="page-6-sub-yes">
+        <h2 style="font-size: 2.2rem; max-width: 650px; text-align: center; line-height: 1.5;">
+            Don't worry, you can keep talking with me all night long and continue the celebration!
+        </h2>
+        <button class="next-btn" onclick="goToBirthdayLetter()">READ YOUR BIRTHDAY LETTER →</button>
+    </div>
+
+    <!-- PAGE 7: Final Birthday Letter -->
+    <div class="page" id="page-7">
+        <div class="letter-container">
+            <h2>Dear Zaza,</h2>
+            <p>We have known each other for almost a year now, and you hold such a special place in my life. Some people are completely more special than others even when they don't know why. That ambition inside you, your refusal to ever give up, your non-judgmental heart, your tireless drive to work hard even when exhausted, and your willingness to try again when everything feels impossible—it is truly so beautiful.</p>
+            <p>I am proud of you in every single way. You are my absolute favorite blessing in everything. I'm so glad I texted you, so glad we talked, so glad I have you, so glad you exist, and most importantly, happy birthday!</p>
+            <p>No matter how hard life gets, no matter how hopeless things start to feel, never give up. Enter every birthday with health, because I believe in your success—you must believe in yourself too. I know there are so many things you haven't told me that you quietly carry in your heart; today, let go of all worries and stop thinking about work.</p>
+            <p style="text-align: right; margin-top: 30px; font-weight: bold;">With all my heart,<br>Your biggest supporter</p>
+        </div>
+    </div>
+
+<script>
+    let currentPage = 1;
+
+    function showPage(pageNum) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        const target = document.getElementById('page-' + pageNum);
+        if (target) {
+            target.classList.add('active');
+            currentPage = pageNum;
+            if (pageNum === 4) {
+                animateFiveThings();
+            }
+        }
+    }
+
+    function nextPage() {
+        showPage(currentPage + 1);
+    }
+
+    // Dino button runaway / click counter logic
+    let dinoClickCount = 0;
+    const dinoYes = document.getElementById('dino-yes');
+    const dinoNo = document.getElementById('dino-no');
+    const dinoWarning = document.getElementById('dino-warning');
+
+    function handleDinoClick(choice) {
+        dinoClickCount++;
+        if (dinoClickCount < 3) {
+            dinoWarning.textContent = "Your reflexes are too slow! Try again.";
+            const parent = dinoYes.parentNode;
+            if (dinoClickCount % 2 === 1) {
+                parent.insertBefore(dinoNo, dinoYes);
+            } else {
+                parent.insertBefore(dinoYes, dinoNo);
+            }
+        } else {
+            nextPage();
+        }
+    }
+
+    // Five things animation sequence
+    function animateFiveThings() {
+        const items = document.querySelectorAll('.five-things-list li');
+        items.forEach((item, index) => {
+            setTimeout(() => {
+                item.classList.add('show');
+                if (index === items.length - 1) {
+                    document.getElementById('things-next').style.display = 'inline-block';
+                }
+            }, (index + 1) * 600);
+        });
+    }
+
+    // 9/11 Score Logic with Airplane animation
+    function handleScoreClick(choice) {
+        if (choice === '9/11') {
+            const plane = document.getElementById('airplane');
+            plane.style.display = 'block';
+            plane.style.top = '50%';
+            plane.style.left = '-100px';
+            plane.style.transform = 'translate(0, -50%) rotate(15deg)';
+            
+            setTimeout(() => {
+                plane.style.transform = 'translate(110vw, -50%) rotate(15deg)';
+            }, 50);
+
+            setTimeout(() => {
+                plane.style.display = 'none';
+                nextPage();
+            }, 1200);
+        } else {
+            nextPage();
+        }
+    }
+
+    // Hoes question logic
+    let hoesClicks = 0;
+    function handleHoesClick(option) {
+        if (option === 'yes') {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-6-sub-yes').classList.add('active');
+        } else if (option === 'no') {
+            triggerConfetti();
+            nextPage();
+        } else if (option === 'hoes') {
+            hoesClicks++;
+            if (hoesClicks === 1) {
+                const overlay = document.getElementById('jumpscare-overlay');
+                overlay.style.display = 'flex';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    document.getElementById('hoes-warning').textContent = "Frogs are more valuable than hoes!";
+                    document.getElementById('hoes-btn-element').style.display = 'none';
+                }, 1500);
+            }
+        }
+    }
+
+    function goToBirthdayLetter() {
+        showPage(7);
+    }
+
+    // Confetti effect using Canvas
+    function triggerConfetti() {
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particles = [];
+        for (let i = 0; i < 150; i++) {
+            particles.push({
+                x: window.innerWidth / 2,
+                y: window.innerHeight / 2,
+                vx: (Math.random() - 0.5) * 15,
+                vy: (Math.random() - 0.5) * 15 - 5,
+                color: ['#ff4d4d', '#4dff4d', '#4d4dff', '#ffff4d', '#ff4dff'][Math.floor(Math.random()*5)],
+                size: Math.random() * 8 + 4,
+                life: 100
+            });
+        }
+
+        function updateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, index) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.3;
+                p.life--;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+                if (p.life <= 0) {
+                    particles.splice(index, 1);
+                }
+            });
+            if (particles.length > 0) {
+                requestAnimationFrame(updateConfetti);
+            }
+        }
+        updateConfetti();
+    }
+</script>
+</body>
+</html>
